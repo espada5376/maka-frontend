@@ -52,13 +52,13 @@ export function ProductPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-border bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:h-16 sm:px-6">
           <button
             type="button"
             onClick={() => navigate(-1)}
             aria-label="Retour"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary "
           >
             <ArrowLeft size={20} />
           </button>

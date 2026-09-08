@@ -47,10 +47,10 @@ export const router = createBrowserRouter([
         element: <LandingPage />,
       },
 
-{
-  path: "/search",
-  element: <SearchPage />,
-},
+      {
+        path: "/search",
+        element: <SearchPage />,
+      },
       {
         path: "/",
         element: <Navigate to="/feed" replace />,
