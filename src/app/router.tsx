@@ -1,26 +1,32 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { LandingPage } from "@/pages/LandingPage";
 import { FeedPage } from "@/pages/FeedPage";
 import { ProductPage } from "@/pages/products/ProductPage";
 import { CheckoutPage } from "@/pages/CheckoutPage";
-import { AccountLoginPage } from "@/pages/AccountLoginPage";
-
+import { CheckoutSuccessPage } from "@/pages/CheckoutSuccessPage";
 import { CartPage } from "@/pages/CartPage";
- 
-import { SellPage } from "@/pages/SellPage";
 
+import { SearchPage } from "@/pages/SearchPage";
+
+import { AccountLoginPage } from "@/pages/AccountLoginPage";
 import { AccountCreatePage } from "@/pages/AccountCreatePage";
 import { AccountVerifyPage } from "@/pages/AccountVerifyPage";
 
+import { SellPage } from "@/pages/SellPage";
+
+import { OrdersPage } from "@/pages/OrdersPage";
+import { OrderDetailPage } from "@/pages/OrderDetailPage";
+
+import { SellerDashboardPage } from "@/pages/seller/SellerDashboardPage";
 import { SellerProductsPage } from "@/pages/seller/SellerProductsPage";
+import { NewProductPage } from "@/pages/seller/NewProductPage";
+import { EditProductPage } from "@/pages/seller/EditProductPage";
 
 import { SellerOnboardingSuccessPage } from "@/pages/seller/SellerOnboardingSuccessPage";
 import { SellerOnboardingStorePage } from "@/pages/seller/SellerOnboardingStorePage";
 import { SellerOnboardingProductPage } from "@/pages/seller/SellerOnboardingProductPage";
 import { SellerOnboardingPublishPage } from "@/pages/seller/SellerOnboardingPublishPage";
-import { EditProductPage } from "@/pages/seller/EditProductPage";
-import { NewProductPage } from "@/pages/seller/NewProductPage";
 
 import { PublicLayout } from "@/layouts/PublicLayout";
 import { SellerLayout } from "@/layouts/SellerLayout";
@@ -28,9 +34,11 @@ import { SellerLayout } from "@/layouts/SellerLayout";
 import { IdentityGate } from "@/guards/IdentityGate";
 import { AccountGuard } from "@/guards/AccountGuard";
 import { SellerGuard } from "@/guards/SellerGuard";
-import { SellerDashboardPage } from "@/pages/seller/SellerDashboardPage";
 
 export const router = createBrowserRouter([
+  /*
+   * Public
+   */
   {
     element: <PublicLayout />,
     children: [
@@ -40,13 +48,12 @@ export const router = createBrowserRouter([
       },
 
 {
-  path: "/cart",
-  element: <CartPage />,
+  path: "/search",
+  element: <SearchPage />,
 },
-
       {
         path: "/",
-        element: <FeedPage />,
+        element: <Navigate to="/feed" replace />,
       },
 
       {
@@ -60,12 +67,31 @@ export const router = createBrowserRouter([
       },
 
       {
+        path: "/cart",
+        element: <CartPage />,
+      },
+
+      /*
+       * Checkout
+       */
+
+      {
+        path: "/checkout",
+        element: <CheckoutPage />,
+      },
+
+      {
         path: "/order/:productId",
         element: <CheckoutPage />,
       },
 
+      {
+        path: "/checkout/success",
+        element: <CheckoutSuccessPage />,
+      },
+
       /*
-       * Routes identité
+       * Identity
        */
 
       {
@@ -84,17 +110,12 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/account/create",
-        element: <AccountCreatePage />,
-      },
-
-      {
         path: "/profile",
         element: <div>Profile</div>,
       },
 
       /*
-       * Parcours vendeur
+       * Seller acquisition
        */
 
       {
@@ -103,7 +124,7 @@ export const router = createBrowserRouter([
       },
 
       /*
-       * Commandes acheteur
+       * Buyer orders
        */
 
       {
@@ -111,12 +132,12 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/orders",
-            element: <div>Orders</div>,
+            element: <OrdersPage />,
           },
 
           {
             path: "/orders/:orderId",
-            element: <div>Order detail</div>,
+            element: <OrderDetailPage />,
           },
         ],
       },
@@ -124,28 +145,39 @@ export const router = createBrowserRouter([
   },
 
   /*
-   * Espace vendeur
+   * Seller
    */
 
   {
     element: <AccountGuard />,
     children: [
-      {
-        path: "/seller/onboarding/success",
-        element: <SellerOnboardingSuccessPage />,
-      },
+      /*
+       * Seller onboarding
+       */
+
       {
         path: "/seller/onboarding/store",
         element: <SellerOnboardingStorePage />,
       },
+
       {
         path: "/seller/onboarding/first-product",
         element: <SellerOnboardingProductPage />,
       },
+
       {
         path: "/seller/onboarding/publish",
         element: <SellerOnboardingPublishPage />,
       },
+
+      {
+        path: "/seller/onboarding/success",
+        element: <SellerOnboardingSuccessPage />,
+      },
+
+      /*
+       * Seller application
+       */
 
       {
         element: <SellerGuard />,
@@ -153,8 +185,6 @@ export const router = createBrowserRouter([
           {
             element: <SellerLayout />,
             children: [
-              { path: "/seller/products", element: <SellerProductsPage /> },
-              { path: "/seller/products/new", element: <NewProductPage /> },
               {
                 path: "/seller",
                 element: <SellerDashboardPage />,

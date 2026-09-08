@@ -1,14 +1,15 @@
-import { ArrowLeft, Truck } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Truck } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { SellerCard } from "@/components/seller";
-import type { Product } from "@/components/product";
-
+import { useCart } from "@/contexts/CartContext";
 import { mockProducts } from "@/data/mockProducts";
 
 export function ProductPage() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
+
+  const { addItem, isLoading } = useCart();
 
   const product = mockProducts.find((item) => item.slug === slug);
 
@@ -40,6 +41,12 @@ export function ProductPage() {
     if (!product.isAvailable) return;
 
     navigate(`/order/${product.id}`);
+  };
+
+  const handleAddToCart = async () => {
+    if (!product.isAvailable) return;
+
+    await addItem(product.id);
   };
 
   return (
@@ -137,12 +144,23 @@ export function ProductPage() {
             </div>
 
             {/* Desktop CTA */}
-            <div className="mt-8 hidden sm:block">
+            <div className="mt-8 hidden gap-3 sm:flex">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!product.isAvailable || isLoading}
+                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-lg border border-primary px-6 text-base font-semibold text-primary transition-colors hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+              >
+                <ShoppingCart size={18} />
+
+                {isLoading ? "Ajout..." : "Ajouter au panier"}
+              </button>
+
               <button
                 type="button"
                 onClick={handleOrder}
                 disabled={!product.isAvailable}
-                className="flex h-12 w-full items-center justify-center rounded-lg bg-primary px-6 text-base font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
+                className="flex h-12 flex-1 items-center justify-center rounded-lg bg-primary px-6 text-base font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
               >
                 {product.isAvailable ? "Commander" : "Indisponible"}
               </button>
@@ -153,14 +171,26 @@ export function ProductPage() {
 
       {/* Mobile CTA */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-white/95 p-4 backdrop-blur sm:hidden">
-        <button
-          type="button"
-          onClick={handleOrder}
-          disabled={!product.isAvailable}
-          className="flex h-12 w-full items-center justify-center rounded-lg bg-primary px-6 text-base font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
-        >
-          {product.isAvailable ? "Commander" : "Indisponible"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={!product.isAvailable || isLoading}
+            aria-label="Ajouter au panier"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-primary text-primary transition-colors hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+          >
+            <ShoppingCart size={20} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOrder}
+            disabled={!product.isAvailable}
+            className="flex h-12 flex-1 items-center justify-center rounded-lg bg-primary px-6 text-base font-semibold text-white transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
+          >
+            {product.isAvailable ? "Commander" : "Indisponible"}
+          </button>
+        </div>
       </div>
     </div>
   );
