@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, User } from "lucide-react";
+import {
+  Bell,
+  Search,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
-import { useIdentity } from "@/contexts/IdentityContext";
+import { Button } from "@/components/ui/button";
+
 import { useCart } from "@/contexts/CartContext";
+import { useIdentity } from "@/contexts/IdentityContext";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 export function PublicHeader() {
   const navigate = useNavigate();
 
   const { isAuthenticated, isSeller } = useIdentity();
   const { itemCount } = useCart();
+  const { unreadCount } = useNotifications();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -21,12 +29,26 @@ export function PublicHeader() {
 
   function handleProfileNavigation() {
     setIsProfileMenuOpen(false);
+
     navigate(isAuthenticated ? "/profile" : "/account/login");
   }
 
   function handleOrdersNavigation() {
     setIsProfileMenuOpen(false);
+
     navigate("/orders");
+  }
+
+  function handleSellerNavigation() {
+    setIsProfileMenuOpen(false);
+
+    navigate("/seller");
+  }
+
+  function handleNotificationsNavigation() {
+    setIsProfileMenuOpen(false);
+
+    navigate("/notifications");
   }
 
   function handleCartNavigation() {
@@ -91,6 +113,30 @@ export function PublicHeader() {
           >
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* Notifications */}
+          {isSeller && (
+            <button
+              type="button"
+              onClick={handleNotificationsNavigation}
+              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              aria-label={
+                unreadCount > 0
+                  ? `${unreadCount} notification${
+                      unreadCount > 1 ? "s" : ""
+                    } non lue${unreadCount > 1 ? "s" : ""}`
+                  : "Notifications"
+              }
+            >
+              <Bell className="h-5 w-5" />
+
+              {unreadCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+          )}
 
           {/* Cart */}
           <button
@@ -169,21 +215,36 @@ export function PublicHeader() {
                 >
                   Mes commandes
                 </button>
+
+                {isSeller && (
+                  <>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleNotificationsNavigation}
+                      className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      <span>Notifications</span>
+
+                      {unreadCount > 0 && (
+                        <span className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold leading-none text-white">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleSellerNavigation}
+                      className="flex w-full items-center px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      Mon espace vendeur
+                    </button>
+                  </>
+                )}
               </div>
             )}
-{isSeller && (
-  <button
-    type="button"
-    role="menuitem"
-    onClick={() => {
-      setIsProfileMenuOpen(false);
-      navigate("/seller");
-    }}
-    className="flex w-full items-center px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-  >
-    Mon espace vendeur
-  </button>
-)}
           </div>
         </div>
 
@@ -199,6 +260,30 @@ export function PublicHeader() {
           >
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* Notifications */}
+          {isSeller && (
+            <button
+              type="button"
+              onClick={handleNotificationsNavigation}
+              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              aria-label={
+                unreadCount > 0
+                  ? `${unreadCount} notification${
+                      unreadCount > 1 ? "s" : ""
+                    } non lue${unreadCount > 1 ? "s" : ""}`
+                  : "Notifications"
+              }
+            >
+              <Bell className="h-5 w-5" />
+
+              {unreadCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+          )}
 
           {/* Cart */}
           <button
@@ -267,6 +352,34 @@ export function PublicHeader() {
                 >
                   Mes commandes
                 </button>
+
+                {isSeller && (
+                  <>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleNotificationsNavigation}
+                      className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      <span>Notifications</span>
+
+                      {unreadCount > 0 && (
+                        <span className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold leading-none text-white">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleSellerNavigation}
+                      className="flex w-full items-center px-4 py-3 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      Mon espace vendeur
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -9,6 +9,8 @@ import { CartPage } from "@/pages/CartPage";
 
 import { SearchPage } from "@/pages/SearchPage";
 
+import { NotificationsPage } from "@/pages/NotificationsPage";
+
 import { AccountLoginPage } from "@/pages/AccountLoginPage";
 import { AccountCreatePage } from "@/pages/AccountCreatePage";
 import { AccountVerifyPage } from "@/pages/AccountVerifyPage";
@@ -50,6 +52,11 @@ export const router = createBrowserRouter([
 {
   path: "/search",
   element: <SearchPage />,
+},
+
+{
+  path: "/notifications",
+  element: <NotificationsPage />,
 },
       {
         path: "/",
