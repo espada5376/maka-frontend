@@ -149,7 +149,7 @@ export function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-border bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center px-4 sm:h-16 sm:px-6">
           <button
             type="button"

@@ -50,14 +50,15 @@ export const router = createBrowserRouter([
       },
 
 {
-  path: "/search",
-  element: <SearchPage />,
-},
-
-{
   path: "/notifications",
   element: <NotificationsPage />,
 },
+
+      {
+        path: "/search",
+        element: <SearchPage />,
+      },
+
       {
         path: "/",
         element: <Navigate to="/feed" replace />,

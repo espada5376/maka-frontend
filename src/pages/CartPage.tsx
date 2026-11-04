@@ -9,7 +9,6 @@ import { CartItem, CartSummary } from "@/components/cart";
 import { useCart } from "@/contexts/CartContext";
 
 export function CartPage() {
-
   const navigate = useNavigate();
   const { items, error, clearCart } = useCart();
 
@@ -23,15 +22,13 @@ export function CartPage() {
           <Link
             to="/feed"
             aria-label="Retour"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50"
+            className="flex h-10 w-10 items-center justify-center rounded-ful bg-white text-slate-700 transition"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
 
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Mon panier
-            </h1>
+            <h1 className="text-2xl font-bold text-slate-900">Mon panier</h1>
 
             <p className="mt-1 text-sm text-slate-500">
               Vérifie tes articles avant de passer commande.
@@ -58,17 +55,17 @@ export function CartPage() {
             </h2>
 
             <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
-              Découvre les produits disponibles et ajoute ceux qui
-              t'intéressent à ton panier.
+              Découvre les produits disponibles et ajoute ceux qui t'intéressent
+              à ton panier.
             </p>
 
-             <Button
-  size="lg"
-  className="mt-6"
-  onClick={() => navigate("/feed")}
->
-  Découvrir les produits
-</Button>
+            <Button
+              size="lg"
+              className="mt-6"
+              onClick={() => navigate("/feed")}
+            >
+              Découvrir les produits
+            </Button>
           </div>
         ) : (
           <>
