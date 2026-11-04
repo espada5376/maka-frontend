@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import PhoneInput, {
+  isValidPhoneNumber,
+} from "react-phone-number-input";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+
+import { authService } from "@/services/auth.service";
 
 import type { IdentityNavigationState } from "@/types/identity";
 
@@ -13,33 +18,47 @@ export function AccountLoginPage() {
 
   const state = location.state as IdentityNavigationState | null;
 
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState<string | undefined>();
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
-    const normalizedPhone = phone.replace(/\s/g, "");
-
-    if (!normalizedPhone) {
+    if (!phone) {
       setError("Entre ton numéro de téléphone.");
       return;
     }
 
-    if (!/^\+?[0-9]{8,15}$/.test(normalizedPhone)) {
+    if (!isValidPhoneNumber(phone)) {
       setError("Entre un numéro de téléphone valide.");
       return;
     }
 
     setError("");
+    setIsSubmitting(true);
 
-    navigate("/account/verify", {
-      state: {
-        from: state?.from,
-        purpose: state?.purpose ?? "login",
-        phone: normalizedPhone,
-      },
-    });
+    try {
+      await authService.requestOtp(phone);
+
+      navigate("/account/verify", {
+        state: {
+          from: state?.from,
+          purpose: state?.purpose ?? "login",
+          phone,
+        },
+      });
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Impossible d'envoyer le code de vérification.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -58,22 +77,43 @@ export function AccountLoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            id="phone"
-            label="Numéro de téléphone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="+228 90 00 00 00"
-            value={phone}
-            onChange={(event) => {
-              setPhone(event.target.value);
-              setError("");
-            }}
-            error={error}
-          />
+          <div className="w-full">
+            <label
+              htmlFor="phone"
+              className="mb-2 block text-sm font-medium text-slate-900"
+            >
+              Numéro de téléphone
+            </label>
 
-          <Button type="submit" variant="primary" size="lg" fullWidth>
+            <PhoneInput
+              id="phone"
+              international
+              defaultCountry="TG"
+              countryCallingCodeEditable={false}
+              placeholder="90 00 00 00"
+              value={phone}
+              onChange={(value) => {
+                setPhone(value);
+                setError("");
+              }}
+              className="phone-input"
+            />
+
+            {error && (
+              <p className="mt-2 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            fullWidth
+            disabled={isSubmitting}
+            loading={isSubmitting}
+          >
             Recevoir un code
           </Button>
         </form>

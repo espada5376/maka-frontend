@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { authService } from "@/services/auth.service";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,8 +31,10 @@ export function AccountVerifyPage() {
 
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [secondsLeft, setSecondsLeft] = useState(30);
+  const [secondsLeft, setSecondsLeft] = useState(300);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
 
   useEffect(() => {
     if (secondsLeft <= 0) {
@@ -55,68 +59,80 @@ export function AccountVerifyPage() {
     }
   }
 
-  function handleVerify() {
-    if (code.length !== 6) {
-      setError("Entre les 6 chiffres du code.");
+  async function handleVerify() {
+  if (code.length !== 6) {
+    setError("Entre les 6 chiffres du code.");
+    return;
+  }
+
+  setIsVerifying(true);
+  setError("");
+
+  try {
+    await authService.verifyOtp(phone, code);
+
+    setStatus("authenticated");
+
+    const purpose = state?.purpose;
+
+    if (purpose === "become_seller") {
+      navigate("/account/create", {
+        replace: true,
+        state: {
+          from: state?.from,
+          purpose: "become_seller",
+          phone,
+        },
+      });
+
       return;
     }
 
-    setIsVerifying(true);
-
-    // Simulation temporaire du backend.
-    window.setTimeout(() => {
-      if (code !== "123456") {
-        setError("Code incorrect. Vérifie le code reçu.");
-        setIsVerifying(false);
-        return;
-      }
-
-      setIsVerifying(false);
-
-      const purpose = state?.purpose;
-
-      if (purpose === "view_orders") {
-        setStatus("verified");
-
-        navigate(state?.from ?? "/orders", {
-          replace: true,
-        });
-
-        return;
-      }
-
-      if (purpose === "become_seller") {
-        setStatus("verified");
-
-        navigate("/account/create", {
-          replace: true,
-          state: {
-            from: state?.from,
-            purpose: "become_seller",
-            phone,
-          },
-        });
-
-        return;
-      }
-
-      setStatus("authenticated");
-
-      navigate(state?.from ?? "/profile", {
+    if (purpose === "view_orders") {
+      navigate(state?.from ?? "/orders", {
         replace: true,
       });
-    }, 400);
-  }
 
-  function handleResend() {
-    if (secondsLeft > 0) {
       return;
     }
 
-    setSecondsLeft(30);
-    setCode("");
-    setError("");
+    navigate(state?.from ?? "/profile", {
+      replace: true,
+    });
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Impossible de vérifier le code.",
+    );
+  } finally {
+    setIsVerifying(false);
   }
+}
+
+  async function handleResend() {
+  if (secondsLeft > 0 || isResending) {
+    return;
+  }
+
+  setIsResending(true);
+  setError("");
+
+  try {
+    const result = await authService.requestOtp(phone);
+
+    setSecondsLeft(result.expiresIn);
+    setCode("");
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Impossible de renvoyer le code.",
+    );
+  } finally {
+    setIsResending(false);
+  }
+}
 
   function handleChangeNumber() {
     navigate("/account/login", {
@@ -166,7 +182,7 @@ export function AccountVerifyPage() {
             variant="primary"
             size="lg"
             fullWidth
-            disabled={code.length !== 6 || isVerifying}
+            disabled={isResending || isVerifying}
             loading={isVerifying}
             onClick={handleVerify}
           >
@@ -184,7 +200,7 @@ export function AccountVerifyPage() {
 
             <button
               type="button"
-              disabled={secondsLeft > 0}
+              disabled={secondsLeft > 0 || isResending}
               onClick={handleResend}
               className={[
                 "font-medium transition-colors",
@@ -193,9 +209,11 @@ export function AccountVerifyPage() {
                   : "text-primary hover:text-primary-hover",
               ].join(" ")}
             >
-              {secondsLeft > 0
-                ? `Renvoyer dans ${secondsLeft}s`
-                : "Renvoyer le code"}
+              {isResending
+  ? "Envoi en cours..."
+  : secondsLeft > 0
+    ? `Renvoyer dans ${secondsLeft}s`
+    : "Renvoyer le code"}
             </button>
           </div>
         </div>

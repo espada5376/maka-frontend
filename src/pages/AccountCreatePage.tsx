@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { userService } from "@/services/user.service";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,36 +15,39 @@ export function AccountCreatePage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { setStatus } = useIdentity();
-
+  
   const state = location.state as IdentityNavigationState | null;
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
 
-    const trimmedName = name.trim();
+  const trimmedName = name.trim();
 
-    if (!trimmedName) {
-      setError("Entre ton nom.");
-      return;
-    }
+  if (!trimmedName) {
+    setError("Entre ton nom.");
+    return;
+  }
 
-    if (trimmedName.length < 2) {
-      setError("Ton nom doit contenir au moins 2 caractères.");
-      return;
-    }
+  if (trimmedName.length < 2) {
+    setError("Ton nom doit contenir au moins 2 caractères.");
+    return;
+  }
 
-    setError("");
+  if (trimmedName.length > 100) {
+    setError("Ton nom ne peut pas dépasser 100 caractères.");
+    return;
+  }
 
-    /*
-     * Simulation temporaire de création de compte.
-     *
-     * Le backend remplacera cette partie plus tard.
-     */
-    setStatus("authenticated");
+  setError("");
+  setIsSubmitting(true);
+
+  try {
+    await userService.updateMe({ name: trimmedName });
+
+    
 
     if (state?.purpose === "become_seller") {
       navigate("/seller/onboarding/store", {
@@ -58,7 +63,18 @@ export function AccountCreatePage() {
     navigate(state?.from ?? "/profile", {
       replace: true,
     });
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Impossible d'enregistrer ton nom.",
+    );
+  } finally {
+    setIsSubmitting(false);
   }
+}
+
+  
 
   return (
     <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
